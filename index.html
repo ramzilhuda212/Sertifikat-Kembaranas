@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Sertifikat KEMBARANAS III - 2026</title>
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QR Code & jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- NAVBAR -->
+  <nav class="bg-emerald-800 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="showPublicView()">
+        <i class="fa-solid fa-award text-amber-400 text-2xl"></i>
+        <div>
+          <h1 class="font-bold text-base leading-tight">E-SERTIFIKAT KEMBARANAS III</h1>
+          <p class="text-[11px] text-emerald-200">Kemah Ukhuwah Nasional III - 2026</p>
+        </div>
+      </div>
+      <button onclick="openLoginModal()" class="bg-emerald-700 hover:bg-emerald-600 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
+        <i class="fa-solid fa-user-lock"></i>
+        <span>Admin Panel</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- KONTEN UTAMA -->
+  <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+
+    <!-- ZONA PUBLIK / SCAN QR CODE -->
+    <div id="public-view" class="space-y-6">
+      <div class="bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-slate-200 text-center max-w-xl mx-auto">
+        <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-3">
+          <i class="fa-solid fa-certificate text-xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 mb-1">Verifikasi & Cek E-Sertifikat</h2>
+        <p class="text-xs text-slate-500 mb-6">Masukkan Nama Lengkap, Nomor KTA, atau ID Sertifikat Anda.</p>
+        
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="text" id="search-input" placeholder="Contoh: BIMO PRASETYO atau KMB3/PST/2026/0001" 
+                 class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs">
+          <button onclick="handleSearch()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-xl text-xs transition">
+            <i class="fa-solid fa-magnifying-glass me-1"></i> Cari Sertifikat
+          </button>
+        </div>
+      </div>
+
+      <!-- HASIL PENCARIAN / SCAN -->
+      <div id="search-result" class="hidden max-w-2xl mx-auto"></div>
+    </div>
+
+    <!-- ZONA ADMIN DASHBOARD -->
+    <div id="admin-view" class="hidden space-y-6">
+      <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Control Panel Admin Sertifikat</h2>
+          <p class="text-xs text-slate-500">Kelola 4 Kategori Sertifikat KEMBARANAS III</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openAddModal()" class="bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-800">
+            <i class="fa-solid fa-plus me-1"></i> Tambah Panitia/Petugas
+          </button>
+          <button onclick="logoutAdmin()" class="bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-rose-700">
+            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB FILTER -->
+      <div class="flex flex-wrap gap-2">
+        <button onclick="filterCategory('All')" class="tab-btn bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Semua Data</button>
+        <button onclick="filterCategory('Peserta')" class="tab-btn bg-white border text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium">Peserta</button>
+        <button onclick="filterCategory('Pembina Pendamping')" class="tab-btn bg-white border text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium">Bindamping</button>
+        <button onclick="filterCategory('Panitia')" class="tab-btn bg-white border text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium">Panitia</button>
+        <button onclick="filterCategory('Petugas Upacara')" class="tab-btn bg-white border text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium">Petugas Upacara/Seni</button>
+      </div>
+
+      <!-- TABEL DAFTAR -->
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 font-semibold border-b">
+              <tr>
+                <th class="p-3">No</th>
+                <th class="p-3">Nama Lengkap</th>
+                <th class="p-3">Kategori</th>
+                <th class="p-3">Asal Sekolah / Lembaga</th>
+                <th class="p-3">ID Sertifikat</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL LOGIN -->
+  <div id="login-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-xs w-full p-6 shadow-2xl relative">
+      <h3 class="text-base font-bold text-slate-800 mb-1">Login Admin Panel</h3>
+      <p class="text-xs text-slate-500 mb-4">Masuk untuk mengontrol & generate e-sertifikat</p>
+      <form onsubmit="handleLogin(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-medium text-slate-700 mb-1">Username</label>
+          <input type="text" id="admin-user" required class="w-full px-3 py-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-700 mb-1">Password</label>
+          <input type="password" id="admin-pass" required class="w-full px-3 py-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 outline-none">
+        </div>
+        <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-medium py-2 rounded-lg text-xs transition mt-2">
+          Masuk
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH DATA MANUAL -->
+  <div id="add-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+      <h3 class="text-base font-bold text-slate-800 mb-3">Tambah Panitia / Petugas</h3>
+      <form onsubmit="handleAddManual(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-medium text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+          <input type="text" id="manual-nama" required class="w-full px-3 py-2 border rounded-lg text-xs">
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-700 mb-1">Kategori</label>
+          <select id="manual-kategori" class="w-full px-3 py-2 border rounded-lg text-xs">
+            <option value="Panitia">Panitia</option>
+            <option value="Petugas Upacara">Petugas Upacara / Pentas Seni</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-medium text-slate-700 mb-1">Asal Sekolah / Pangkalan</label>
+          <input type="text" id="manual-sekolah" placeholder="Contoh: Kwarnas / Kwarda Lampung" class="w-full px-3 py-2 border rounded-lg text-xs">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeAddModal()" class="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg text-xs">Batal</button>
+          <button type="submit" class="flex-1 bg-emerald-800 text-white py-2 rounded-lg text-xs">Simpan Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONTAINER QR CODE HIDDEN FOR GENERATOR -->
+  <div id="qrcode-temp" class="hidden"></div>
+
+  <script>
+    // =========================================================
+    // TEMPELKAN URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI:
+    // =========================================================
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyCuNMeNti1JQexMJcSpnm-wh523rijZkH24lsFC8IATtpK9HUnkIt1w1N-Ra_BuAl0/exec"; 
+
+    var rawAdminData = [];
+
+    // CEK QUERY PARAMS JIKA HASIL SCAN QR CODE (?id=KMB3/PST/2026/0001)
+    window.addEventListener('DOMContentLoaded', function() {
+      var urlParams = new URLSearchParams(window.location.search);
+      var certId = urlParams.get('id');
+      if (certId) {
+        document.getElementById('search-input').value = certId;
+        handleSearch();
+      }
+    });
+
+    function showPublicView() {
+      document.getElementById('public-view').classList.remove('hidden');
+      document.getElementById('admin-view').classList.add('hidden');
+    }
+
+    // PENCARIAN & VERIFIKASI QR CODE
+    async function handleSearch() {
+      var q = document.getElementById('search-input').value.trim();
+      if (!q) return alert('Silakan masukkan kata kunci!');
+
+      var resDiv = document.getElementById('search-result');
+      resDiv.classList.remove('hidden');
+      resDiv.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><p>Memverifikasi data sertifikat...</p></div>`;
+
+      try {
+        var res = await fetch(GAS_API_URL + "?action=search&q=" + encodeURIComponent(q));
+        var result = await res.json();
+
+        if (result.success && result.data.length > 0) {
+          renderPublicCards(result.data);
+        } else {
+          resDiv.innerHTML = `<div class="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-center text-xs">Sertifikat tidak ditemukan. Pastikan ID Sertifikat atau Nama sudah sesuai.</div>`;
+        }
+      } catch (e) {
+        resDiv.innerHTML = `<div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl text-center text-xs">Gagal terhubung ke database.</div>`;
+      }
+    }
+
+    function renderPublicCards(data) {
+      var resDiv = document.getElementById('search-result');
+      resDiv.innerHTML = data.map(function(item) {
+        return `
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-4">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="bg-emerald-100 text-emerald-800 text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Terverifikasi Asli & Resmi
+              </span>
+              <span class="bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1 rounded-full font-medium">
+                ${item['Kategori_Sertifikat'] || item['Status Pendaftaran'] || 'Peserta'}
+              </span>
+            </div>
+
+            <h3 class="text-lg font-bold text-slate-800">${item['Nama Lengkap Peserta']}</h3>
+            <p class="text-xs text-slate-500 mb-4">${item['Asal Sekolah'] || item['Nama Lengkap dan Gelar'] || '-'}, ${item['Kota/Kapubaten'] || ''}</p>
+
+            <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl mb-4 border border-slate-100">
+              <div><span class="text-slate-400 block text-[10px]">ID SERTIFIKAT</span> <p class="font-bold text-slate-700">${item['ID_Sertifikat'] || 'Belum Diterbitkan'}</p></div>
+              <div><span class="text-slate-400 block text-[10px]">PENYELENGGARA</span> <p class="font-bold text-slate-700">KEMBARANAS III 2026</p></div>
+            </div>
+
+            ${item['URL_PDF'] ? `
+              <a href="${item['URL_PDF']}" target="_blank" class="block text-center w-full bg-emerald-800 hover:bg-emerald-900 text-white font-medium py-2.5 rounded-xl text-xs transition">
+                <i class="fa-solid fa-file-pdf me-1"></i> Unduh E-Sertifikat (PDF)
+              </a>
+            ` : `
+              <button disabled class="w-full bg-slate-100 text-slate-400 font-medium py-2 rounded-xl text-xs cursor-not-allowed">
+                Sertifikat Belum Diterbitkan Admin
+              </button>
+            `}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // AUTH ADMIN
+    function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex'); }
+    function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex'); }
+    function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('add-modal').classList.add('flex'); }
+    function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); document.getElementById('add-modal').classList.remove('flex'); }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      var u = document.getElementById('admin-user').value;
+      var p = document.getElementById('admin-pass').value;
+
+      if (u === "admin" && p === "kembaranas2026") {
+        closeLoginModal();
+        document.getElementById('public-view').classList.add('hidden');
+        document.getElementById('admin-view').classList.remove('hidden');
+        loadAdminData();
+      } else {
+        alert("Username/Password Admin Salah!");
+      }
+    }
+
+    function logoutAdmin() { showPublicView(); }
+
+    async function loadAdminData() {
+      var tbody = document.getElementById('admin-table-body');
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Memuat database...</td></tr>`;
+
+      try {
+        var res = await fetch(GAS_API_URL + "?action=getAll");
+        var result = await res.json();
+        if (result.success) {
+          rawAdminData = result.data;
+          renderAdminTable(rawAdminData);
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">Gagal mengambil data.</td></tr>`;
+      }
+    }
+
+    function renderAdminTable(data) {
+      var tbody = document.getElementById('admin-table-body');
+      tbody.innerHTML = data.map(function(item, idx) {
+        var kategori = item['Kategori_Sertifikat'] || item['Status Pendaftaran'] || 'Peserta';
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-medium text-slate-400">${idx + 1}</td>
+            <td class="p-3 font-semibold text-slate-800">${item['Nama Lengkap Peserta']}</td>
+            <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px]">${kategori}</span></td>
+            <td class="p-3 text-slate-500">${item['Asal Sekolah'] || '-'}</td>
+            <td class="p-3 font-mono text-[11px] text-slate-600">${item['ID_Sertifikat'] || '-'}</td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${item['Status_Sertifikat'] === 'Terbit' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                ${item['Status_Sertifikat'] || 'Belum'}
+              </span>
+            </td>
+            <td class="p-3 text-center">
+              <button onclick="generatePDF(${item._rowIndex}, '${encodeURIComponent(item['Nama Lengkap Peserta'])}', '${kategori}', '${item['Asal Sekolah'] || ''}')" 
+                      class="bg-emerald-800 hover:bg-emerald-900 text-white px-2.5 py-1 rounded-lg text-[11px] transition">
+                <i class="fa-solid fa-gears me-1"></i> Generate
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterCategory(cat) {
+      if (cat === 'All') {
+        renderAdminTable(rawAdminData);
+      } else {
+        var filtered = rawAdminData.filter(function(r) {
+          var k = r['Kategori_Sertifikat'] || r['Status Pendaftaran'] || '';
+          return k.toLowerCase().indexOf(cat.toLowerCase()) !== -1;
+        });
+        renderAdminTable(filtered);
+      }
+    }
+
+    // LOGIC GENERATE PDF SERTIFIKAT CLIENT-SIDE BERSAMA QR CODE
+    async function generatePDF(rowIndex, encNama, kategori, sekolah) {
+      var nama = decodeURIComponent(encNama);
+      var certCode = "PST";
+      if (kategori.indexOf("Panitia") !== -1) certCode = "PNT";
+      else if (kategori.indexOf("Pembina") !== -1) certCode = "BDP";
+      else if (kategori.indexOf("Petugas") !== -1) certCode = "PUPS";
+
+      var idSertifikat = "KMB3/" + certCode + "/2026/" + String(rowIndex).padStart(4, '0');
+      var verifyUrl = window.location.origin + window.location.pathname + "?id=" + idSertifikat;
+
+      // 1. Render QR Code
+      var qrContainer = document.getElementById('qrcode-temp');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, { text: verifyUrl, width: 100, height: 100 });
+
+      setTimeout(async function() {
+        var qrImg = qrContainer.querySelector('img').src;
+
+        // 2. Buat Dokument PDF Menggunakan jsPDF
+        var { jsPDF } = window.jspdf;
+        var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+        // Background / Border
+        doc.setLineWidth(2);
+        doc.setDrawColor(6, 78, 59); // Emerald color
+        doc.rect(10, 10, 277, 190);
+
+        doc.setLineWidth(0.5);
+        doc.rect(12, 12, 273, 186);
+
+        // Header
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(24);
+        doc.setTextColor(6, 78, 59);
+        doc.text("SERTIFIKAT PENGHARGAAN", 148.5, 45, { align: "center" });
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 100, 100);
+        doc.text("Diberikan Kepada:", 148.5, 60, { align: "center" });
+
+        // Nama Pemilik
+        doc.setFontSize(22);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(15, 23, 42);
+        doc.text(nama.toUpperCase(), 148.5, 75, { align: "center" });
+
+        // Kategori & Sekolah
+        doc.setFontSize(13);
+        doc.setFont("helvetica", "normal");
+        doc.text("Sebagai " + kategori.toUpperCase() + " (" + (sekolah || "KEMBARANAS III") + ")", 148.5, 87, { align: "center" });
+
+        doc.setFontSize(11);
+        doc.text("Dalam Kegiatan Perkemahan Ukhuwah Nasional (KEMBARANAS III) Tahun 2026", 148.5, 100, { align: "center" });
+
+        // Embed QR Code
+        doc.addImage(qrImg, 'PNG', 133.5, 115, 30, 30);
+
+        doc.setFontSize(8);
+        doc.setFont("courier", "normal");
+        doc.text("ID: " + idSertifikat, 148.5, 150, { align: "center" });
+
+        // Convert ke Base64
+        var pdfBase64 = doc.output('datauristring');
+
+        // 3. Kirim File PDF ke Apps Script untuk Di-upload ke Google Drive
+        alert("Sedang mengunggah sertifikat " + nama + " ke Google Drive...");
+        var res = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "saveCertificate",
+            rowIndex: rowIndex,
+            idSertifikat: idSertifikat,
+            kategori: kategori,
+            nama: nama,
+            pdfBase64: pdfBase64
+          })
+        });
+
+        var result = await res.json();
+        if (result.success) {
+          alert("Sertifikat Berhasil Diterbitkan!");
+          loadAdminData();
+        } else {
+          alert("Gagal menyimpan sertifikat: " + result.message);
+        }
+      }, 300);
+    }
+
+    async function handleAddManual(e) {
+      e.preventDefault();
+      var nama = document.getElementById('manual-nama').value;
+      var kategori = document.getElementById('manual-kategori').value;
+      var sekolah = document.getElementById('manual-sekolah').value;
+
+      var certCode = kategori === "Panitia" ? "PNT" : "PUPS";
+      var idSertifikat = "KMB3/" + certCode + "/2026/" + Math.floor(1000 + Math.random() * 9000);
+
+      var res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "addManualRow",
+          nama: nama,
+          kategori: kategori,
+          sekolah: sekolah,
+          idSertifikat: idSertifikat
+        })
+      });
+
+      var result = await res.json();
+      if (result.success) {
+        closeAddModal();
+        alert("Data manual berhasil disimpan!");
+        loadAdminData();
+      }
+    }
+  </script>
+</body>
+</html>
