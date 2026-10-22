@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>E-Sertifikat KEMBARANAS III - 2026</title>
+  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QR Code & jsPDF CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -25,7 +27,7 @@
           <p class="text-[11px] text-emerald-200">Kemah Ukhuwah Nasional III - 2026</p>
         </div>
       </div>
-      <button onclick="openLoginModal()" class="bg-emerald-700 hover:bg-emerald-600 text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1.5">
+      <button onclick="openLoginModal()" class="bg-emerald-700 hover:bg-emerald-600 text-xs px-3 py-2 rounded-lg font-medium flex items-center gap-1.5 transition">
         <i class="fa-solid fa-user-lock"></i>
         <span>Admin Panel</span>
       </button>
@@ -61,22 +63,19 @@
       <div class="flex flex-wrap justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 gap-3">
         <div>
           <h2 class="text-lg font-bold text-slate-800">Control Panel Admin Sertifikat</h2>
-          <p class="text-xs text-slate-500">Kelola Data & Template Sertifikat KEMBARANAS III</p>
+          <p class="text-xs text-slate-500">Kelola Data & Generate E-Sertifikat KEMBARANAS III</p>
         </div>
         <div class="flex gap-2">
-          <button onclick="openTemplateModal()" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-amber-700">
-            <i class="fa-solid fa-image me-1"></i> Upload Template
+          <button onclick="openAddModal()" class="bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-800 transition">
+            <i class="fa-solid fa-plus me-1"></i> Tambah Data Manual
           </button>
-          <button onclick="openAddModal()" class="bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-800">
-            <i class="fa-solid fa-plus me-1"></i> Tambah Data
-          </button>
-          <button onclick="logoutAdmin()" class="bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-rose-700">
+          <button onclick="logoutAdmin()" class="bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-rose-700 transition">
             <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
           </button>
         </div>
       </div>
 
-      <!-- TAB FILTER -->
+      <!-- TAB FILTER KATEGORI -->
       <div class="flex flex-wrap gap-2">
         <button onclick="filterCategory('All')" class="bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Semua Data</button>
         <button onclick="filterCategory('Peserta')" class="bg-white border text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium">Peserta</button>
@@ -85,7 +84,7 @@
         <button onclick="filterCategory('Petugas')" class="bg-white border text-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium">Petugas Upacara/Seni</button>
       </div>
 
-      <!-- TABEL DAFTAR -->
+      <!-- TABEL DAFTAR PESERTA -->
       <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
@@ -94,10 +93,10 @@
                 <th class="p-3">No</th>
                 <th class="p-3">Nama Lengkap</th>
                 <th class="p-3">Kategori</th>
-                <th class="p-3">Asal Sekolah</th>
+                <th class="p-3">Asal Sekolah / Lembaga</th>
                 <th class="p-3">ID Sertifikat</th>
                 <th class="p-3">Status</th>
-                <th class="p-3 text-center">Aksi (Edit / Hapus / Generate)</th>
+                <th class="p-3 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody id="admin-table-body" class="divide-y divide-slate-100"></tbody>
@@ -108,54 +107,22 @@
 
   </main>
 
-  <!-- MODAL LOGIN -->
+  <!-- MODAL LOGIN ADMIN -->
   <div id="login-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-xs w-full p-6 shadow-2xl">
+    <div class="bg-white rounded-2xl max-w-xs w-full p-6 shadow-2xl relative">
       <h3 class="text-base font-bold text-slate-800 mb-1">Login Admin Panel</h3>
+      <p class="text-xs text-slate-500 mb-4">Masukkan hak akses pengelola</p>
       <form onsubmit="handleLogin(event)" class="space-y-3">
         <div>
           <label class="block text-[11px] font-medium text-slate-700 mb-1">Username</label>
-          <input type="text" id="admin-user" required class="w-full px-3 py-2 border rounded-lg text-xs">
+          <input type="text" id="admin-user" required class="w-full px-3 py-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 outline-none">
         </div>
         <div>
           <label class="block text-[11px] font-medium text-slate-700 mb-1">Password</label>
-          <input type="password" id="admin-pass" required class="w-full px-3 py-2 border rounded-lg text-xs">
+          <input type="password" id="admin-pass" required class="w-full px-3 py-2 border rounded-lg text-xs focus:ring-2 focus:ring-emerald-600 outline-none">
         </div>
-        <button type="submit" class="w-full bg-emerald-800 text-white font-medium py-2 rounded-lg text-xs">Masuk</button>
+        <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-medium py-2 rounded-lg text-xs transition">Masuk</button>
       </form>
-    </div>
-  </div>
-
-  <!-- MODAL UPLOAD TEMPLATE SERTIFIKAT -->
-  <div id="template-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <h3 class="text-base font-bold text-slate-800 mb-2"><i class="fa-solid fa-file-image me-1 text-amber-600"></i> Upload Template Sertifikat (PNG / JPG)</h3>
-      <p class="text-xs text-slate-500 mb-4">Upload gambar template kosongan (Ukuran A4 Landscape) untuk masing-masing kategori:</p>
-      
-      <div class="space-y-4 text-xs">
-        <div class="p-3 border rounded-xl bg-slate-50">
-          <label class="font-bold block mb-1">1. Template PESERTA</label>
-          <input type="file" accept="image/*" onchange="uploadTemplateFile('Peserta', this)" class="w-full text-xs">
-          <span id="status-Peserta" class="text-[10px] text-slate-400 block mt-1">Belum ada template</span>
-        </div>
-        <div class="p-3 border rounded-xl bg-slate-50">
-          <label class="font-bold block mb-1">2. Template BINDAMPING</label>
-          <input type="file" accept="image/*" onchange="uploadTemplateFile('Bindamping', this)" class="w-full text-xs">
-          <span id="status-Bindamping" class="text-[10px] text-slate-400 block mt-1">Belum ada template</span>
-        </div>
-        <div class="p-3 border rounded-xl bg-slate-50">
-          <label class="font-bold block mb-1">3. Template PANITIA</label>
-          <input type="file" accept="image/*" onchange="uploadTemplateFile('Panitia', this)" class="w-full text-xs">
-          <span id="status-Panitia" class="text-[10px] text-slate-400 block mt-1">Belum ada template</span>
-        </div>
-        <div class="p-3 border rounded-xl bg-slate-50">
-          <label class="font-bold block mb-1">4. Template PETUGAS UPACARA / SENI</label>
-          <input type="file" accept="image/*" onchange="uploadTemplateFile('Petugas', this)" class="w-full text-xs">
-          <span id="status-Petugas" class="text-[10px] text-slate-400 block mt-1">Belum ada template</span>
-        </div>
-      </div>
-
-      <button onclick="closeTemplateModal()" class="w-full mt-5 bg-slate-200 text-slate-700 py-2 rounded-lg text-xs font-bold">Tutup</button>
     </div>
   </div>
 
@@ -188,7 +155,7 @@
         </div>
         <div class="flex gap-2 pt-2">
           <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg text-xs">Batal</button>
-          <button type="submit" class="flex-1 bg-emerald-800 text-white py-2 rounded-lg text-xs">Simpan Perubahan</button>
+          <button type="submit" class="flex-1 bg-emerald-800 text-white py-2 rounded-lg text-xs">Simpan</button>
         </div>
       </form>
     </div>
@@ -226,15 +193,55 @@
 
   <div id="qrcode-temp" class="hidden"></div>
 
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-8">
+    © 2026 Panitia KEMBARANAS III - Hak Cipta Dilindungi.
+  </footer>
+
   <script>
-    // =========================================================
-    // PASTE KAN URL WEB APP APPS SCRIPT BARU KAMU DI SINI:
-    // =========================================================
+    // =========================================================================
+    // 1. MASUKKAN URL WEB APP GOOGLE APPS SCRIPT MILIKMU DI SINI:
+    // =========================================================================
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyCuNMeNti1JQexMJcSpnm-wh523rijZkH24lsFC8IATtpK9HUnkIt1w1N-Ra_BuAl0/exec"; 
 
-    var rawAdminData = [];
-    var loadedTemplates = {};
+    // =========================================================================
+    // 2. PENGATURAN KOORDINAT & FILE TEMPLATE DARI FOLDER templates/ DI GITHUB
+    // (Ukuran Kertas A4 Landscape: Lebar 297 mm x Tinggi 210 mm)
+    // =========================================================================
+    const TEMPLATE_CONFIG = {
+      "Peserta": {
+        bgUrl: "templates/peserta.png",
+        nameX: 148.5, nameY: 95, fontSize: 24,
+        subX: 148.5, subY: 108, subFontSize: 12,
+        qrX: 230, qrY: 145, qrSize: 28,
+        idX: 244, idY: 176, idFontSize: 8
+      },
+      "Pembina Pendamping": {
+        bgUrl: "templates/bindamping.png",
+        nameX: 148.5, nameY: 95, fontSize: 24,
+        subX: 148.5, subY: 108, subFontSize: 12,
+        qrX: 230, qrY: 145, qrSize: 28,
+        idX: 244, idY: 176, idFontSize: 8
+      },
+      "Panitia": {
+        bgUrl: "templates/panitia.png",
+        nameX: 148.5, nameY: 95, fontSize: 24,
+        subX: 148.5, subY: 108, subFontSize: 12,
+        qrX: 230, qrY: 145, qrSize: 28,
+        idX: 244, idY: 176, idFontSize: 8
+      },
+      "Petugas Upacara": {
+        bgUrl: "templates/petugas.png",
+        nameX: 148.5, nameY: 95, fontSize: 24,
+        subX: 148.5, subY: 108, subFontSize: 12,
+        qrX: 230, qrY: 145, qrSize: 28,
+        idX: 244, idY: 176, idFontSize: 8
+      }
+    };
 
+    var rawAdminData = [];
+
+    // OTOMATIS BUKA HALAMAN VERIFIKASI SAAT BARCODE DI-SCAN VIA HP (?id=...)
     window.addEventListener('DOMContentLoaded', function() {
       var urlParams = new URLSearchParams(window.location.search);
       var certId = urlParams.get('id');
@@ -249,10 +256,10 @@
       document.getElementById('admin-view').classList.add('hidden');
     }
 
-    // SEARCH & VERIFIKASI QR CODE
+    // PENCARIAN PUBLIK & VERIFIKASI QR CODE
     async function handleSearch() {
       var q = document.getElementById('search-input').value.trim();
-      if (!q) return alert('Silakan masukkan kata kunci!');
+      if (!q) return alert('Silakan masukkan kata kunci pencarian!');
 
       var resDiv = document.getElementById('search-result');
       resDiv.classList.remove('hidden');
@@ -265,10 +272,10 @@
         if (result.success && result.data.length > 0) {
           renderPublicCards(result.data);
         } else {
-          resDiv.innerHTML = `<div class="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-center text-xs">Sertifikat tidak ditemukan.</div>`;
+          resDiv.innerHTML = `<div class="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-center text-xs">Sertifikat tidak ditemukan. Pastikan ID Sertifikat atau Nama sudah sesuai.</div>`;
         }
       } catch (e) {
-        resDiv.innerHTML = `<div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl text-center text-xs">Gagal terhubung ke database.</div>`;
+        resDiv.innerHTML = `<div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl text-center text-xs">Gagal terhubung ke database server.</div>`;
       }
     }
 
@@ -308,13 +315,11 @@
       }).join('');
     }
 
-    // MODAL CONTROL
+    // AKSI MODAL ADMIN
     function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); document.getElementById('login-modal').classList.add('flex'); }
     function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); document.getElementById('login-modal').classList.remove('flex'); }
     function openAddModal() { document.getElementById('add-modal').classList.remove('hidden'); document.getElementById('add-modal').classList.add('flex'); }
     function closeAddModal() { document.getElementById('add-modal').classList.add('hidden'); document.getElementById('add-modal').classList.remove('flex'); }
-    function openTemplateModal() { document.getElementById('template-modal').classList.remove('hidden'); document.getElementById('template-modal').classList.add('flex'); }
-    function closeTemplateModal() { document.getElementById('template-modal').classList.add('hidden'); document.getElementById('template-modal').classList.remove('flex'); }
     function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); document.getElementById('edit-modal').classList.remove('flex'); }
 
     function handleLogin(e) {
@@ -328,7 +333,7 @@
         document.getElementById('admin-view').classList.remove('hidden');
         loadAdminData();
       } else {
-        alert("Username/Password Admin Salah!");
+        alert("Username atau Password Admin Salah!");
       }
     }
 
@@ -336,28 +341,17 @@
 
     async function loadAdminData() {
       var tbody = document.getElementById('admin-table-body');
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Memuat database & template...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Memuat database spreadsheet...</td></tr>`;
 
       try {
         var res = await fetch(GAS_API_URL + "?action=getAll");
         var result = await res.json();
         if (result.success) {
           rawAdminData = result.data;
-          loadedTemplates = result.templates || {};
-
-          // Update Status Template
-          ['Peserta', 'Bindamping', 'Panitia', 'Petugas'].forEach(function(cat) {
-            var el = document.getElementById('status-' + cat);
-            if (el) {
-              el.innerText = loadedTemplates['TEMPLATE_' + cat] ? '✅ Template Sudah Terpasang' : '❌ Belum ada template';
-              el.className = loadedTemplates['TEMPLATE_' + cat] ? 'text-[10px] text-emerald-600 font-bold block mt-1' : 'text-[10px] text-rose-500 block mt-1';
-            }
-          });
-
           renderAdminTable(rawAdminData);
         }
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">Gagal mengambil data.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">Gagal mengambil data dari server.</td></tr>`;
       }
     }
 
@@ -381,8 +375,8 @@
               <button onclick="openEditData(${item._rowIndex})" class="bg-amber-500 hover:bg-amber-600 text-white p-1.5 rounded-lg text-xs"><i class="fa-solid fa-pen"></i></button>
               <button onclick="handleDeleteData(${item._rowIndex})" class="bg-rose-600 hover:bg-rose-700 text-white p-1.5 rounded-lg text-xs"><i class="fa-solid fa-trash"></i></button>
               <button onclick="generatePDF(${item._rowIndex}, '${encodeURIComponent(item['Nama Lengkap Peserta'])}', '${kategori}', '${item['Asal Sekolah'] || ''}')" 
-                      class="bg-emerald-800 hover:bg-emerald-900 text-white px-2 py-1 rounded-lg text-[11px]">
-                <i class="fa-solid fa-gears me-1"></i> Generate
+                      class="bg-emerald-800 hover:bg-emerald-900 text-white px-2.5 py-1 rounded-lg text-[11px]">
+                <i class="fa-solid fa-gears me-1"></i> Generate PDF
               </button>
             </td>
           </tr>
@@ -390,32 +384,17 @@
       }).join('');
     }
 
-    // UPLOAD TEMPLATE FILE
-    function uploadTemplateFile(category, inputEl) {
-      var file = inputEl.files[0];
-      if (!file) return;
-
-      var reader = new FileReader();
-      reader.onload = async function(e) {
-        var base64 = e.target.result;
-        alert("Mengunggah template " + category + "...");
-
-        var res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "saveTemplate",
-            category: category,
-            fileBase64: base64
-          })
+    // FILTER KATEGORI
+    function filterCategory(cat) {
+      if (cat === 'All') {
+        renderAdminTable(rawAdminData);
+      } else {
+        var filtered = rawAdminData.filter(function(r) {
+          var k = r['Kategori_Sertifikat'] || r['Status Pendaftaran'] || '';
+          return k.toLowerCase().indexOf(cat.toLowerCase()) !== -1;
         });
-
-        var result = await res.json();
-        if (result.success) {
-          alert(result.message);
-          loadAdminData();
-        }
-      };
-      reader.readAsDataURL(file);
+        renderAdminTable(filtered);
+      }
     }
 
     // EDIT DATA (UPDATE)
@@ -463,7 +442,7 @@
 
     // DELETE DATA
     async function handleDeleteData(rowIndex) {
-      if (!confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+      if (!confirm("Apakah Anda yakin ingin menghapus data ini dari Spreadsheet?")) return;
 
       var res = await fetch(GAS_API_URL, {
         method: "POST",
@@ -480,84 +459,7 @@
       }
     }
 
-    // GENERATE PDF WITH TEMPLATE BACKGROUND
-    async function generatePDF(rowIndex, encNama, kategori, sekolah) {
-      var nama = decodeURIComponent(encNama);
-      
-      var certCode = "PST";
-      var templateKey = "TEMPLATE_Peserta";
-
-      if (kategori.indexOf("Panitia") !== -1) { certCode = "PNT"; templateKey = "TEMPLATE_Panitia"; }
-      else if (kategori.indexOf("Pembina") !== -1 || kategori.indexOf("Bindamping") !== -1) { certCode = "BDP"; templateKey = "TEMPLATE_Bindamping"; }
-      else if (kategori.indexOf("Petugas") !== -1) { certCode = "PUPS"; templateKey = "TEMPLATE_Petugas"; }
-
-      var idSertifikat = "KMB3/" + certCode + "/2026/" + String(rowIndex).padStart(4, '0');
-      var verifyUrl = window.location.origin + window.location.pathname + "?id=" + idSertifikat;
-
-      // Render QR Code
-      var qrContainer = document.getElementById('qrcode-temp');
-      qrContainer.innerHTML = '';
-      new QRCode(qrContainer, { text: verifyUrl, width: 100, height: 100 });
-
-      setTimeout(async function() {
-        var qrImg = qrContainer.querySelector('img').src;
-        var { jsPDF } = window.jspdf;
-        var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-
-        // A4 Landscape ukuran 297mm x 210mm
-        var templateBase64 = loadedTemplates[templateKey];
-
-        if (templateBase64) {
-          // 1. Tempelkan Gambar Template sebagai Latar Belakang
-          doc.addImage(templateBase64, 'PNG', 0, 0, 297, 210);
-        } else {
-          // Fallback jika belum upload template
-          doc.setLineWidth(2);
-          doc.setDrawColor(6, 78, 59);
-          doc.rect(10, 10, 277, 190);
-        }
-
-        // 2. Tempelkan Teks & Identitas Pemilik di Atas Template
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(22);
-        doc.setTextColor(15, 23, 42);
-        doc.text(nama.toUpperCase(), 148.5, 95, { align: "center" });
-
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(50, 50, 50);
-        doc.text(sekolah || "KEMBARANAS III 2026", 148.5, 105, { align: "center" });
-
-        // 3. Tempelkan QR Code & ID Sertifikat
-        doc.addImage(qrImg, 'PNG', 133.5, 130, 30, 30);
-
-        doc.setFontSize(8);
-        doc.setFont("courier", "bold");
-        doc.text("ID: " + idSertifikat, 148.5, 165, { align: "center" });
-
-        var pdfBase64 = doc.output('datauristring');
-
-        alert("Mengunggah PDF " + nama + " ke Google Drive...");
-        var res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "saveCertificate",
-            rowIndex: rowIndex,
-            idSertifikat: idSertifikat,
-            kategori: kategori,
-            nama: nama,
-            pdfBase64: pdfBase64
-          })
-        });
-
-        var result = await res.json();
-        if (result.success) {
-          alert("Sertifikat Berhasil Diterbitkan!");
-          loadAdminData();
-        }
-      }, 300);
-    }
-
+    // TAMBAH DATA MANUAL (CREATE)
     async function handleAddManual(e) {
       e.preventDefault();
       var nama = document.getElementById('manual-nama').value;
@@ -586,16 +488,88 @@
       }
     }
 
-    function filterCategory(cat) {
-      if (cat === 'All') {
-        renderAdminTable(rawAdminData);
-      } else {
-        var filtered = rawAdminData.filter(function(r) {
-          var k = r['Kategori_Sertifikat'] || r['Status Pendaftaran'] || '';
-          return k.toLowerCase().indexOf(cat.toLowerCase()) !== -1;
-        });
-        renderAdminTable(filtered);
-      }
+    // GENERATE PDF DENGAN TEMPLATE GAMBAR SESUAI KATEGORI
+    async function generatePDF(rowIndex, encNama, kategori, sekolah) {
+      var nama = decodeURIComponent(encNama);
+      
+      var catKey = "Peserta";
+      var certCode = "PST";
+
+      if (kategori.indexOf("Panitia") !== -1) { catKey = "Panitia"; certCode = "PNT"; }
+      else if (kategori.indexOf("Pembina") !== -1 || kategori.indexOf("Bindamping") !== -1) { catKey = "Pembina Pendamping"; certCode = "BDP"; }
+      else if (kategori.indexOf("Petugas") !== -1) { catKey = "Petugas Upacara"; certCode = "PUPS"; }
+
+      var cfg = TEMPLATE_CONFIG[catKey] || TEMPLATE_CONFIG["Peserta"];
+      var idSertifikat = "KMB3/" + certCode + "/2026/" + String(rowIndex).padStart(4, '0');
+      var verifyUrl = window.location.origin + window.location.pathname + "?id=" + idSertifikat;
+
+      // 1. Generate QR Code
+      var qrContainer = document.getElementById('qrcode-temp');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, { text: verifyUrl, width: 120, height: 120 });
+
+      setTimeout(async function() {
+        var qrImg = qrContainer.querySelector('img').src;
+        var { jsPDF } = window.jspdf;
+        var doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+        // 2. Load Gambar Template dari Folder GitHub
+        var imgObj = new Image();
+        imgObj.crossOrigin = "Anonymous";
+        imgObj.src = cfg.bgUrl;
+
+        imgObj.onload = async function() {
+          // Tempel Gambar Latar Belakang
+          doc.addImage(imgObj, 'PNG', 0, 0, 297, 210);
+
+          // Tempel Nama Pemilik Sertifikat
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(cfg.fontSize);
+          doc.setTextColor(15, 23, 42);
+          doc.text(nama.toUpperCase(), cfg.nameX, cfg.nameY, { align: "center" });
+
+          // Tempel Asal Sekolah / Lembaga
+          doc.setFontSize(cfg.subFontSize);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(50, 50, 50);
+          doc.text(sekolah || "KEMBARANAS III 2026", cfg.subX, cfg.subY, { align: "center" });
+
+          // Tempel QR Code Barcode
+          doc.addImage(qrImg, 'PNG', cfg.qrX, cfg.qrY, cfg.qrSize, cfg.qrSize);
+
+          // Tempel ID Sertifikat
+          doc.setFontSize(cfg.idFontSize);
+          doc.setFont("courier", "bold");
+          doc.text("ID: " + idSertifikat, cfg.idX, cfg.idY, { align: "center" });
+
+          // Convert PDF ke Base64 & Upload
+          var pdfBase64 = doc.output('datauristring');
+          alert("Mengunggah PDF " + nama + " ke Google Drive...");
+
+          var res = await fetch(GAS_API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "saveCertificate",
+              rowIndex: rowIndex,
+              idSertifikat: idSertifikat,
+              kategori: kategori,
+              nama: nama,
+              pdfBase64: pdfBase64
+            })
+          });
+
+          var result = await res.json();
+          if (result.success) {
+            alert("Sertifikat Berhasil Diterbitkan!");
+            loadAdminData();
+          }
+        };
+
+        imgObj.onerror = function() {
+          alert("Gagal memuat file template di: " + cfg.bgUrl + ". Pastikan file gambar sudah ada di folder templates/ pada repository GitHub.");
+        };
+
+      }, 300);
     }
   </script>
 </body>
